@@ -1,0 +1,194 @@
+<!DOCTYPE html>
+<html lang="sl">
+<head>
+  <meta charset="UTF-8">
+  <title>RizzEmUp Premium</title>
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Rubik:wght@400;700&display=swap');
+    body {
+      font-family: 'Rubik', sans-serif;
+      margin: 0; padding: 0;
+      background: linear-gradient(135deg, #0f0c29, #302b63, #24243e);
+      color: #fff;
+      display: flex; justify-content: center; align-items: center;
+      min-height: 100vh;
+    }
+    .app {
+      background-color: rgba(255,255,255,0.05);
+      padding: 40px; border-radius: 20px;
+      box-shadow: 0 0 20px rgba(0,0,0,0.4);
+      max-width: 600px; width: 100%; text-align: center;
+    }
+    h1 { font-size: 2.5rem; margin-bottom: 30px; color: #ffd700; }
+    select, input, button {
+      margin: 10px; padding: 12px 20px;
+      font-size: 1rem;
+      border-radius: 8px; border: none; outline: none;
+      width: 80%; max-width: 300px;
+    }
+    button {
+      background-color: #ff4d6d; color: white; cursor: pointer; transition: 0.3s;
+    }
+    button:hover { background-color: #e63946; }
+    #rizz-text { margin-top: 20px; font-size: 1.2rem; min-height: 60px; color: #f1faee; }
+    .hidden { display: none; }
+    .section { margin-top: 25px; }
+    #limit-message { color: #ffa500; font-weight: bold; }
+    #history {
+      text-align: left; margin-top: 15px;
+      max-height: 150px; overflow-y: auto;
+      padding: 10px; background-color: rgba(255,255,255,0.1); border-radius: 10px;
+    }
+    #history div {
+      margin-bottom: 5px; border-bottom: 1px solid rgba(255,255,255,0.1);
+    }
+  </style>
+</head>
+<body>
+  <div class="app">
+    <h1>RizzEmUp Premium</h1>
+    <div id="step-login">
+      <input id="username" placeholder="Vpiši ime..." />
+      <button onclick="login()">Prijava</button>
+    </div>
+    <div id="step-language" class="hidden">
+      <p>Izberi jezik:</p>
+      <select id="language-select">
+        <option value="sl">Slovenščina</option>
+        <option value="en">English</option>
+        <option value="sh">Srbohrvaščina</option>
+      </select>
+      <button onclick="chooseLanguage()">Naprej</button>
+    </div>
+    <div id="step-gender" class="hidden">
+      <p id="gender-label"></p>
+      <select id="gender-select">
+        <option value="male">Moški</option>
+        <option value="female">Ženska</option>
+      </select>
+      <button onclick="chooseGender()">Potrdi</button>
+    </div>
+    <div id="step-rizz" class="hidden">
+      <div id="rizz-text">Klikni za rizz.</div>
+      <button id="rizz-btn" onclick="showRizz()">Zrizaj</button>
+      <div id="limit-message"></div>
+      <div class="section">
+        <input id="custom-rizz" placeholder="Dodaj svoj rizz..." />
+        <button onclick="addCustomRizz()">Dodaj rizz</button>
+      </div>
+      <div class="section">
+        <h3>Tvoja zgodovina:</h3>
+        <div id="history"></div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    const rizzData = {
+      sl: {
+        male: ["Hej kralj, danes izgledaš noro dobro", "Stari, tvoja karizma je na vrhuncu", "Kdo te je spustil iz nebes?", "Legendarno si oblečen!", "Tvoj nasmeh uničuje konkurenco", "Ti si razlog, da sonce danes sije"],
+        female: ["Hej kraljica, tvoj nasmeh osvetli ves dan", "Lepota tebe se meri v zvezdah", "Si kot jutranja kava – močna in nepogrešljiva", "Oči kot galaksije, resno", "Ti si razlog, da se dan začne s stilom", "Tvoja energija dvigne vse okoli tebe"]
+      },
+      en: {
+        male: ["Hey king, you're the main character today", "You're not just a vibe, you're the whole energy", "Is that charm in human form?", "Bro, you're built different", "Your drip's making waves", "You're walking confidence"],
+        female: ["Hey queen, your energy is magnetic", "You're slaying without even trying", "You light up every room you enter", "You're elegance and fire in one", "Glow up level: divine", "Beauty + brains? Unstoppable"]
+      },
+      sh: {
+        male: ["Ej brate, ti si danas hit", "Harizmu sipaš kao niko", "Izgledaš kao milion dolara", "Kralj si, bez konkurencije", "Ti si glavni lik danas", "Brate, aura ti je ludilo"],
+        female: ["Ej ljepotice, ti sijaš jače od sunca", "Ti si čista poezija", "Izgledaš kao san koji hoda", "Osmijeh ti obara s nogu", "Svjetliš kao zvezda padalica", "Ti si definicija šarma"]
+      }
+    };
+
+    let selectedLanguage = 'sl';
+    let selectedGender = 'male';
+    let username = '';
+    const MAX_RIZZ = 3;
+
+    const todayKey = () => {
+      const d = new Date();
+      return 'rizz_' + username + '_' + d.toISOString().split('T')[0];
+    };
+
+    function login() {
+      username = document.getElementById("username").value.trim();
+      if (username) {
+        document.getElementById("step-login").classList.add("hidden");
+        document.getElementById("step-language").classList.remove("hidden");
+      }
+    }
+
+    function chooseLanguage() {
+      selectedLanguage = document.getElementById("language-select").value;
+      document.getElementById("step-language").classList.add("hidden");
+      document.getElementById("step-gender").classList.remove("hidden");
+
+      const prompts = {
+        sl: "Izberi svoj spol:",
+        en: "Select your gender:",
+        sh: "Odaberi pol:"
+      };
+      document.getElementById("gender-label").innerText = prompts[selectedLanguage];
+    }
+
+    function chooseGender() {
+      selectedGender = document.getElementById("gender-select").value;
+      document.getElementById("step-gender").classList.add("hidden");
+      document.getElementById("step-rizz").classList.remove("hidden");
+
+      const btnText = {
+        sl: selectedGender === "male" ? "Zrizajjo!" : "Zrizajga!",
+        en: selectedGender === "male" ? "Rizz her!" : "Rizz him!",
+        sh: selectedGender === "male" ? "Zrizaj je!" : "Zrizaj ga!"
+      };
+      document.getElementById("rizz-btn").innerText = btnText[selectedLanguage];
+
+      refreshHistory();
+    }
+
+    function getTodayHistory() {
+      return JSON.parse(localStorage.getItem(todayKey()) || "[]");
+    }
+
+    function saveToHistory(rizz) {
+      const history = getTodayHistory();
+      history.push(rizz);
+      localStorage.setItem(todayKey(), JSON.stringify(history));
+    }
+
+    function refreshHistory() {
+      const historyDiv = document.getElementById("history");
+      const history = getTodayHistory();
+      historyDiv.innerHTML = history.map(r => `<div>- ${r}</div>`).join('');
+    }
+
+    function showRizz() {
+      const history = getTodayHistory();
+      const messages = {
+        sl: "Dosegel si dnevno mejo. Nadgradi na premium!",
+        en: "You reached your daily limit. Upgrade to premium!",
+        sh: "Prešao si dnevni limit. Kupi premium!"
+      };
+
+      if (history.length >= MAX_RIZZ) {
+        document.getElementById("limit-message").innerText = messages[selectedLanguage];
+        return;
+      }
+
+      const rizzList = rizzData[selectedLanguage][selectedGender];
+      const rizz = rizzList[Math.floor(Math.random() * rizzList.length)];
+      document.getElementById("rizz-text").innerText = rizz;
+      document.getElementById("limit-message").innerText = "";
+      saveToHistory(rizz);
+      refreshHistory();
+    }
+
+    function addCustomRizz() {
+      const custom = document.getElementById("custom-rizz").value.trim();
+      if (custom) {
+        saveToHistory(custom);
+        refreshHistory();
+      }
+    }
+  </script>
+</body>
+</html>
