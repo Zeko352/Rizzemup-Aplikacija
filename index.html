@@ -12,13 +12,16 @@
       color: #fff;
       display: flex; justify-content: center; align-items: center;
       min-height: 100vh;
+      box-sizing: border-box;
     }
     .app {
-      background-color: rgba(255,255,255,0.05);
-      padding: 40px; border-radius: 20px;
-      box-shadow: 0 0 20px rgba(0,0,0,0.4);
+      background-color: rgba(255,255,255,0.1);
+      padding: 40px; border-radius: 25px;
+      box-shadow: 0 0 30px rgba(0,0,0,0.4);
       max-width: 600px; width: 100%; text-align: center;
+      transition: 0.3s;
     }
+    .app:hover { box-shadow: 0 0 40px rgba(255, 255, 255, 0.5); }
     h1 { font-size: 2.5rem; margin-bottom: 30px; color: #ffd700; }
     select, input, button {
       margin: 10px; padding: 12px 20px;
@@ -28,9 +31,10 @@
     }
     button {
       background-color: #ff4d6d; color: white; cursor: pointer; transition: 0.3s;
+      box-shadow: 0 4px 10px rgba(0, 0, 0, 0.3);
     }
-    button:hover { background-color: #e63946; }
-    #rizz-text { margin-top: 20px; font-size: 1.2rem; min-height: 60px; color: #f1faee; }
+    button:hover { background-color: #e63946; transform: translateY(-2px); }
+    #rizz-text { margin-top: 20px; font-size: 1.3rem; min-height: 60px; color: #f1faee; }
     .hidden { display: none; }
     .section { margin-top: 25px; }
     #limit-message { color: #ffa500; font-weight: bold; }
@@ -42,6 +46,9 @@
     #history div {
       margin-bottom: 5px; border-bottom: 1px solid rgba(255,255,255,0.1);
     }
+    .rizz-list { padding: 10px; margin-top: 20px; background: rgba(255,255,255,0.2); border-radius: 12px; }
+    .rizz-item { margin: 5px 0; color: #e3e3e3; cursor: pointer; transition: 0.3s; }
+    .rizz-item:hover { color: #ff4d6d; }
   </style>
 </head>
 <body>
@@ -76,6 +83,7 @@
         <input id="custom-rizz" placeholder="Dodaj svoj rizz..." />
         <button onclick="addCustomRizz()">Dodaj rizz</button>
       </div>
+      <div class="rizz-list" id="rizz-list"></div>
       <div class="section">
         <h3>Tvoja zgodovina:</h3>
         <div id="history"></div>
@@ -86,16 +94,40 @@
   <script>
     const rizzData = {
       sl: {
-        male: ["Hej kralj, danes izgledaš noro dobro", "Stari, tvoja karizma je na vrhuncu", "Kdo te je spustil iz nebes?", "Legendarno si oblečen!", "Tvoj nasmeh uničuje konkurenco", "Ti si razlog, da sonce danes sije"],
-        female: ["Hej kraljica, tvoj nasmeh osvetli ves dan", "Lepota tebe se meri v zvezdah", "Si kot jutranja kava – močna in nepogrešljiva", "Oči kot galaksije, resno", "Ti si razlog, da se dan začne s stilom", "Tvoja energija dvigne vse okoli tebe"]
+        male: [
+          "Hej kralj, danes izgledaš noro dobro", "Stari, tvoja karizma je na vrhuncu", "Kdo te je spustil iz nebes?", "Legendarno si oblečen!", "Tvoj nasmeh uničuje konkurenco", "Ti si razlog, da sonce danes sije",
+          "Resnično edinstven tip", "Saj ni res, kako ti to uspete?", "Oblačenje ti je res dobro uspelo", "Imaš energijo, ki sije", "Nikoli ne prenehaš presenetiti", "Brez napora si zgled stila", "Tvoje oči so neverjetne", 
+          "Tvoj smeh? Osvojil me je", "Z vedno novo svežino izgledaš neverjetno", "Kralj, danes vladaš", "Tvoja prisotnost je naravnost magična", "Resnično car si", "Mojster stila si", "Vse se vrti okoli tebe"
+        ],
+        female: [
+          "Hej kraljica, tvoj nasmeh osvetli ves dan", "Lepota tebe se meri v zvezdah", "Si kot jutranja kava – močna in nepogrešljiva", "Oči kot galaksije, resno", "Ti si razlog, da se dan začne s stilom", "Tvoja energija dvigne vse okoli tebe",
+          "Tvoje besede so vedno prava izbira", "Tvoj stil je neprekosljiv", "Tvoj nasmeh me vedno spravi v dobro voljo", "Izžarevaš tako neverjetno pozitivnost", "Tvoje oči so kot morje", "Obožujem tvojo samozavest", "Tvoj korak je kot ples",
+          "Vsi te opazijo, ko stopiš v prostor", "Ti si ta energija, ki jo potrebujemo", "Naravna lepota v vsakem pogledu", "Tvoj glas je kot glasba za moje ušesa", "Tvoj nasmeh je najlepši del dneva", "Nikoli ne prenehaš presenečati", "Tvoj šarm je brez primere"
+        ]
       },
       en: {
-        male: ["Hey king, you're the main character today", "You're not just a vibe, you're the whole energy", "Is that charm in human form?", "Bro, you're built different", "Your drip's making waves", "You're walking confidence"],
-        female: ["Hey queen, your energy is magnetic", "You're slaying without even trying", "You light up every room you enter", "You're elegance and fire in one", "Glow up level: divine", "Beauty + brains? Unstoppable"]
+        male: [
+          "Hey king, you're the main character today", "You're not just a vibe, you're the whole energy", "Is that charm in human form?", "Bro, you're built different", "Your drip's making waves", "You're walking confidence",
+          "Seriously, you're out here shining", "You're a walking inspiration", "Your style? It's impeccable", "When you walk in, the room lights up", "You're a complete package", "Your energy is unmatched", "Bro, you're on fire today", 
+          "You're the definition of swag", "Your presence is magnetic", "Confidence is your middle name", "That outfit? Absolute fire", "You're the one people talk about", "Unstoppable force", "You're a legend in the making"
+        ],
+        female: [
+          "Hey queen, your energy is magnetic", "You're slaying without even trying", "You light up every room you enter", "You're elegance and fire in one", "Glow up level: divine", "Beauty + brains? Unstoppable",
+          "You're an icon", "You're a masterpiece", "You own the room", "That smile of yours is everything", "You redefine what elegance means", "You're the moment", "Your vibe is all I need", "People can't take their eyes off you", 
+          "Everything about you is grace", "You're on another level", "You're setting the bar high", "Beauty and confidence, that's you", "You are the standard", "Effortlessly flawless"
+        ]
       },
       sh: {
-        male: ["Ej brate, ti si danas hit", "Harizmu sipaš kao niko", "Izgledaš kao milion dolara", "Kralj si, bez konkurencije", "Ti si glavni lik danas", "Brate, aura ti je ludilo"],
-        female: ["Ej ljepotice, ti sijaš jače od sunca", "Ti si čista poezija", "Izgledaš kao san koji hoda", "Osmijeh ti obara s nogu", "Svjetliš kao zvezda padalica", "Ti si definicija šarma"]
+        male: [
+          "Ej brate, ti si danas hit", "Harizmu sipaš kao niko", "Izgledaš kao milion dolara", "Kralj si, bez konkurencije", "Ti si glavni lik danas", "Brate, aura ti je ludilo",
+          "Kada kročiš, svi gledaju", "Tvoj stil je nepogrešiv", "Svuda gdje ideš ostavljaš trag", "Tvoj osmijeh obara s nogu", "Tvoja energija je nevjerojatna", "Brate, izgledaš previše dobro", "Svaka tvoja odluka je hit", 
+          "Kao filmski lik", "Stil koji nosiš je bez premca", "Kralj među svim ljudima", "Vodiš, ne slijediš", "Tvoje prisustvo je snažno", "Zavodiš na svakom koraku", "Tvoja aura je nevjerojatna"
+        ],
+        female: [
+          "Ej ljepotice, ti sijaš jače od sunca", "Ti si čista poezija", "Izgledaš kao san koji hoda", "Osmijeh ti obara s nogu", "Svjetliš kao zvezda padalica", "Ti si definicija šarma",
+          "Tvoj glas je kao pjesma", "S tobom je svaki trenutak čarolija", "Izgledaš kao da si izašla iz bajke", "Oči su ti kao dva dijamanta", "Puno si više od samo ljepote", "Zračiš pozitivnošću", "Tvoje prisustvo je moćno", 
+          "Tvoj šarm ne može se ignorirati", "Tvoje oči? Najlepše na svetu", "Svuda gdje se pojaviš, svi zastanu", "Tvoj osmijeh je magičan", "Ti si uvijek u centru pažnje", "Zavodiš svojim pogledom", "Bajkovita si"
+        ]
       }
     };
 
